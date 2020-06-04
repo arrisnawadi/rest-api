@@ -1,7 +1,13 @@
 const express = require('express')
-const routes = require('./routes/api')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
+
+// import API routes
+const apiRoutes = require('./routes/api')
+
+// import error handler
+const globalErrorHandler = require('./controllers/errorController')
+const AppError = require('./utils/appError')
 
 // set up express app
 const app = express()
@@ -13,14 +19,16 @@ mongoose.Promise = global.Promise
 app.use(bodyParser.json())
 
 // initialize routes
-app.use('/api', routes)
-
-// listen for requests
-app.listen(process.env.port || 4000, () => {
-  console.log('running on port: 4000')
-})
+app.use('/api', apiRoutes)
 
 // error handling middleware
-app.use((err, req, res, next) => {
-  res.status(422).send({ error: err._message })
+app.get('*', (req, res, next) => {
+  next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404))
+})
+
+app.use(globalErrorHandler)
+
+// listen for requests
+app.listen(process.env.port || 3000, () => {
+  console.log('running on port: 3000')
 })

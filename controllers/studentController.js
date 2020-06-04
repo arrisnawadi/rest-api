@@ -1,106 +1,90 @@
 const Student = require('./../models/student')
+const catchAsync = require('./../utils/catchAsync')
+const AppError = require('./../utils/appError')
 
 // get all students
-exports.getAllStudents = async (req, res, next) => {
-  try {
-    const page = req.query.page * 1 || 1
-    const limit = req.query.limit * 1 || 100
-    const skip = (page - 1) * limit
+exports.getAllStudents = catchAsync(async (req, res, next) => {
+  // set up pagination
+  const page = req.query.page * 1 || 1
+  const limit = req.query.limit * 1 || 100
+  const skip = (page - 1) * limit
 
-    if (req.query.page) {
-      const numStudents = await Student.countDocuments()
-      if (skip >= numStudents) throw new Error('This page doesn\'t exist!')
-    }
+  const students = await Student.find().skip(skip).limit(limit)
 
-    const students = await Student.find().skip(skip).limit(limit)
-
-    res.status(200).json({
-      status: 'success',
-      results: students.length,
-      data: {
-        students
-      }
-    })
-  } catch (err) {
-    res.status(404).json({
-      status: 'failed',
-      message: err
-    })
+  // throw error when page over total students
+  if (req.query.page) {
+    const numStudents = await Student.countDocuments()
+    if (skip >= numStudents) return next(new AppError('This page doesn\'t exist!', 404))
   }
-}
+
+  res.status(200).json({
+    status: 'success',
+    results: students.length,
+    data: {
+      students
+    }
+  })
+})
 
 // create new students
-exports.createStudent = async (req, res, next) => {
-  try {
-    const newStudent = await Student.create(req.body)
+exports.createStudent = catchAsync(async (req, res, next) => {
+  const newStudent = await Student.create(req.body)
 
-    res.status(201).json({
-      status: 'success',
-      data: {
-        student: newStudent
-      }
-    })
-  } catch (err) {
-    res.status(400).json({
-      status: 'failed',
-      message: 'Invalid data sent!'
-    })
-  }
-}
+  res.status(201).json({
+    status: 'success',
+    data: {
+      student: newStudent
+    }
+  })
+})
 
 // get student by ID
-exports.getStudent = async (req, res, next) => {
-  try {
-    const student = await Student.findById(req.params.id)
+exports.getStudent = catchAsync(async (req, res, next) => {
+  const student = await Student.findById(req.params.id)
 
-    res.status(200).json({
-      status: 'success',
-      data: {
-        student
-      }
-    })
-  } catch (err) {
-    res.status(404).json({
-      status: 'failed',
-      message: err
-    })
+  // throw error when id not found
+  if (!student) {
+    return next(new AppError(`Can\'t find student with ID '${req.params.id}'!`, 404))
   }
-}
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      student
+    }
+  })
+})
 
 // update student by ID
-exports.updateStudent = async (req, res, next) => {
-  try {
-    const student = await Student.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true
-    })
+exports.updateStudent = catchAsync(async (req, res, next) => {
+  const student = await Student.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true
+  })
 
-    res.status(200).json({
-      status: 'success',
-      data: {
-        student
-      }
-    })
-  } catch (err) {
-    res.status(404).json({
-      status: 'failed',
-      message: err
-    })
+  // throw error when id not found
+  if (!student) {
+    return next(new AppError(`Can\'t find student with ID '${req.params.id}'!`, 404))
   }
-}
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      student
+    }
+  })
+})
 
 // delete student by ID
-exports.deleteStudent = async (req, res, next) => {
-  try {
-    await Student.findByIdAndDelete(req.params.id)
+exports.deleteStudent = catchAsync(async (req, res, next) => {
+  await Student.findByIdAndDelete(req.params.id)
 
-    res.status(204).json({
-      status: 'success'
-    })
-  } catch (err) {
-    res.status(404).json({
-      status: 'failed',
-      message: err
-    })
+  // throw error when id not found
+  if (!student) {
+    return next(new AppError(`Can\'t find student with ID '${req.params.id}'!`, 404))
   }
-}
+
+  res.status(204).json({
+    status: 'success'
+  })
+})

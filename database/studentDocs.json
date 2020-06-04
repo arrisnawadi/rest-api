@@ -1,0 +1,41 @@
+[{
+  "_id": {
+    "$oid": "5ed74e500c3b3212acc7d5e9"
+  },
+  "name": "Aris",
+  "age": 16,
+  "address": "Balikpapan",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "5ed76b2a381d0408943159d7"
+  },
+  "name": "Joko",
+  "age": 16,
+  "address": "Samarinda",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "5ed7b59e7cac301604498373"
+  },
+  "name": "Sandra",
+  "age": 16,
+  "address": "Samarinda",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "5ed7b5a87cac301604498374"
+  },
+  "name": "Laura",
+  "age": 16,
+  "address": "Balikpapan",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "5ed7b5b07cac301604498375"
+  },
+  "name": "Jatmiko",
+  "age": 16,
+  "address": "Balikpapan",
+  "__v": 0
+}]
